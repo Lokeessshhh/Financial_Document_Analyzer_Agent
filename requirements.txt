@@ -1,0 +1,80 @@
+# Core framework
+# Keep crewai at version 0.130.0
+# Other package versions are flexible and can be changed
+# Only change crewai version if there are critical dependency conflicts that cannot be resolved by other means
+crewai==0.130.0
+# FIX: must match crewai==0.130.0 exactly — newer crewai-tools imports crewai.rag which doesn't exist in 0.130.0
+crewai-tools==0.47.1
+
+# Bug Fix: Added missing dependencies
+# python-dotenv — required for load_dotenv() used in agents.py and tools.py
+python-dotenv>=1.0.0
+
+# python-multipart — required by FastAPI for file upload / form data handling
+python-multipart>=0.0.9
+
+# langchain-community — required for PyPDFLoader used in tools.py to replace undefined `Pdf` class
+langchain-community>=0.2.0
+
+# pypdf — required by PyPDFLoader to parse PDF files
+pypdf>=4.0.0
+
+# Web framework
+fastapi>=0.115.9
+uvicorn[standard]>=0.29.0
+
+# Performance & security additions
+slowapi>=0.1.9           # rate limiting for FastAPI
+structlog>=24.1.0        # structured logging
+pydantic-settings>=2.2.0 # Pydantic Settings for config management
+sentry-sdk>=2.0.0        # optional error tracking (only used when SENTRY_DSN is set)
+
+# LLM providers
+openai>=1.68.2
+
+# Google Cloud / AI (optional, for Google LLM provider)
+# Versions are unpinned to allow pip to resolve compatibility between packages
+google-ai-generativelanguage
+google-api-core
+google-api-python-client
+google-auth
+google-auth-httplib2
+google-cloud-aiplatform
+google-cloud-bigquery
+google-cloud-core
+google-cloud-resource-manager
+google-cloud-storage
+google-crc32c
+google-generativeai
+google-resumable-media
+googleapis-common-protos
+
+# Utilities
+click
+Jinja2
+jsonschema
+langchain-core
+langsmith
+numpy
+oauthlib
+# FIX: onnxruntime 1.22.0 does not exist; latest stable is 1.18.x
+onnxruntime>=1.17.0
+# Opentelemetry versions unpinned to let crewai 0.130.0 resolve compatible versions
+opentelemetry-api
+opentelemetry-exporter-otlp-proto-common
+opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-exporter-otlp-proto-http
+opentelemetry-instrumentation
+opentelemetry-instrumentation-asgi
+opentelemetry-instrumentation-fastapi
+opentelemetry-proto
+opentelemetry-sdk
+opentelemetry-semantic-conventions
+opentelemetry-util-http
+pandas==2.2.2
+pillow==10.3.0
+# FIX: unpinned protobuf to allow compatibility with recent google-* packages (may require >=5.x)
+protobuf>=4.25.3
+# FIX: pydantic_core must match pydantic — 2.6.1 requires pydantic_core~=2.16.x, not 2.8.0
+pydantic>=2.6.1
+pydantic_core>=2.16.2
