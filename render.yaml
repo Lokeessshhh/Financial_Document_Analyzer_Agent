@@ -1,0 +1,66 @@
+services:
+  # FastAPI Web Service
+  - type: web
+    name: financial-analyzer-api
+    runtime: python
+    region: oregon
+    plan: starter
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        fromService:
+          type: redis
+          name: financial-analyzer-redis
+          property: connectionString
+      - key: DATABASE_URL
+        fromDatabase:
+          name: financial-analyzer-db
+          property: connectionString
+      - key: API_KEY
+        generateValue: true
+      - key: MAX_FILE_SIZE_MB
+        value: "10"
+      - key: DEBUG
+        value: "false"
+
+  # Celery Worker Service
+  - type: worker
+    name: financial-analyzer-worker
+    runtime: python
+    region: oregon
+    plan: starter
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m worker
+    envVars:
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        fromService:
+          type: redis
+          name: financial-analyzer-redis
+          property: connectionString
+      - key: DATABASE_URL
+        fromDatabase:
+          name: financial-analyzer-db
+          property: connectionString
+      - key: MAX_FILE_SIZE_MB
+        value: "10"
+
+  # Redis Instance
+  - type: redis
+    name: financial-analyzer-redis
+    region: oregon
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+# PostgreSQL Database
+databases:
+  - name: financial-analyzer-db
+    region: oregon
+    plan: free

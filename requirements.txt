@@ -29,6 +29,14 @@ structlog>=24.1.0        # structured logging
 pydantic-settings>=2.2.0 # Pydantic Settings for config management
 sentry-sdk>=2.0.0        # optional error tracking (only used when SENTRY_DSN is set)
 
+# Queue processing (Celery + Redis)
+celery>=5.3.0
+redis>=5.0.0
+
+# Database (SQLAlchemy + PostgreSQL)
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+
 # LLM providers
 openai>=1.68.2
 
