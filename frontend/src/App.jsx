@@ -8,27 +8,21 @@ import './styles/global.css';
 
 function App() {
   const [selectedJobId, setSelectedJobId] = useState(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const { jobs, loading, refetch } = useJobList();
 
   // Handle new job submission
   const handleJobSubmitted = (data, mode) => {
-    // For sync mode, the backend returns the full result immediately
-    // but we still want to refresh the list to see it there.
-    // For async mode, it returns just the job_id.
     const newJobId = data.job_id;
-    
-    // Immediately refresh list to show the new job (even if pending)
     refetch();
-    
-    // Switch view to the new job
     if (newJobId) {
       setSelectedJobId(newJobId);
     }
   };
 
   const handleJobSelect = (id) => {
-    console.log('App: Selecting job', id);
     setSelectedJobId(id);
+    setIsDrawerOpen(false); // Collapse drawer when a job is selected
   };
 
   return (
@@ -37,7 +31,11 @@ function App() {
       <Header />
       
       <main className="main-content">
-        <UploadPanel onJobSubmitted={handleJobSubmitted} />
+        <UploadPanel 
+          onJobSubmitted={handleJobSubmitted} 
+          isOpen={isDrawerOpen}
+          setIsOpen={setIsDrawerOpen}
+        />
         
         <div className="workspace">
           <JobList 

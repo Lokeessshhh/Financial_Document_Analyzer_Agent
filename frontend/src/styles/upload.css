@@ -1,34 +1,53 @@
-.upload-panel {
+.upload-drawer {
   background-color: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 24px;
-  animation: slideDown var(--transition-slow);
+  transition: var(--transition-slow);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
 }
 
-.upload-collapsed {
-  background-color: var(--bg-surface);
-  border-bottom: 1px solid var(--border-subtle);
-  padding: 12px 24px;
+.upload-drawer.collapsed .drawer-content {
+  max-height: 0;
+  padding: 0 24px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.upload-drawer.open .drawer-content {
+  max-height: 1000px;
+  padding: 24px;
+  opacity: 1;
+}
+
+.drawer-handle {
   display: flex;
   justify-content: center;
-  animation: slideDown var(--transition);
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: var(--transition);
 }
 
-.new-analysis-btn {
+.drawer-handle:hover {
+  background-color: var(--bg-elevated);
+}
+
+.handle-content {
   display: flex;
   align-items: center;
   gap: 8px;
   color: var(--accent-gold);
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
-  padding: 8px 16px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
 }
 
-.new-analysis-btn:hover {
-  background-color: var(--bg-elevated);
-  border-color: var(--accent-gold);
+.drawer-content form {
+  display: flex;
+  flex-direction: column;
 }
 
 .drop-zone {
@@ -151,9 +170,43 @@ textarea:focus {
   text-align: left;
 }
 
-.error-message {
-  color: var(--status-failed);
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  margin-bottom: 16px;
+.mode-toggle-group {
+  margin-bottom: 24px;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  background-color: var(--bg-input);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  margin-bottom: 8px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.mode-btn.active {
+  background-color: var(--accent-gold);
+  color: var(--text-inverse);
+}
+
+.mode-btn:hover:not(.active) {
+  background-color: var(--bg-elevated);
+  color: var(--text-secondary);
+}
+
+.mode-hint {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  font-style: italic;
 }
