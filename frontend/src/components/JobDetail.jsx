@@ -16,10 +16,13 @@ const STAGES = [
 const JobDetail = ({ jobId }) => {
   const { job, result, isPolling, error } = useJobPoller(jobId);
 
+  // When jobId changes, the useJobPoller hook handles clearing state.
+  // We just need to ensure the UI reflects the current job's state.
+
   if (!jobId) {
     return (
       <div className="job-detail-empty">
-        <h2 className="empty-title">Select a job to view analysis</h2>
+        <h2 className="empty-title">Select an analysis to view details</h2>
         <div className="decorative-line"></div>
       </div>
     );
@@ -40,8 +43,9 @@ const JobDetail = ({ jobId }) => {
   };
 
   const getStageStatus = (stageKey, index) => {
-    if (job.status === 'failed' && !result?.agent_outputs?.[stageKey]) return 'failed';
     if (result?.agent_outputs?.[stageKey]) return 'completed';
+    if (job.status === 'completed') return 'completed'; // Ensure they don't stay 'waiting' if job is done
+    if (job.status === 'failed' && !result?.agent_outputs?.[stageKey]) return 'failed';
     
     // Logic for processing stage
     if (job.status === 'processing') {
