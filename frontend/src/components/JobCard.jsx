@@ -3,10 +3,15 @@ import { formatTimeAgo, truncate } from '../utils/formatters';
 import StatusBadge from './StatusBadge';
 
 const JobCard = ({ job, isSelected, onClick }) => {
+  const handleClick = (e) => {
+    console.log('JobCard clicked:', job.job_id);
+    if (onClick) onClick(job.job_id);
+  };
+
   return (
     <div 
       className={`job-card ${isSelected ? 'selected' : ''}`} 
-      onClick={onClick}
+      onClick={handleClick}
     >
       <div className="job-card-top">
         <div className={`status-dot ${job.status}`}></div>

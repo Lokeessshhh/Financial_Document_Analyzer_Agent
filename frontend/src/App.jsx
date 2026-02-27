@@ -10,16 +10,25 @@ function App() {
   const [selectedJobId, setSelectedJobId] = useState(null);
   const { jobs, loading, refetch } = useJobList();
 
-  // Auto-select the most recent job when list updates
-  useEffect(() => {
-    if (jobs.length > 0 && !selectedJobId) {
-      setSelectedJobId(jobs[0].job_id);
-    }
-  }, [jobs, selectedJobId]);
-
-  const handleJobSubmitted = (jobData) => {
+  // Handle new job submission
+  const handleJobSubmitted = (data, mode) => {
+    // For sync mode, the backend returns the full result immediately
+    // but we still want to refresh the list to see it there.
+    // For async mode, it returns just the job_id.
+    const newJobId = data.job_id;
+    
+    // Immediately refresh list to show the new job (even if pending)
     refetch();
-    setSelectedJobId(jobData.job_id);
+    
+    // Switch view to the new job
+    if (newJobId) {
+      setSelectedJobId(newJobId);
+    }
+  };
+
+  const handleJobSelect = (id) => {
+    console.log('App: Selecting job', id);
+    setSelectedJobId(id);
   };
 
   return (
@@ -35,7 +44,7 @@ function App() {
             jobs={jobs} 
             loading={loading} 
             selectedJobId={selectedJobId} 
-            onJobSelect={setSelectedJobId}
+            onJobSelect={handleJobSelect}
             onRefresh={refetch}
           />
           <JobDetail jobId={selectedJobId} />
