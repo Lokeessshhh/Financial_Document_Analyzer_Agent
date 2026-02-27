@@ -29,6 +29,9 @@ export function useJobPoller(jobId) {
         setResult(resultData);
       } else if (jobData.status === 'failed') {
         stopPolling();
+        // Even on failure, try to get partial results if any
+        const resultData = await getResult(jobId);
+        if (resultData) setResult(resultData);
       }
     } catch (err) {
       console.error('Polling error:', err);

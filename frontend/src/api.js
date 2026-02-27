@@ -1,12 +1,13 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-// Submit new analysis
-export async function submitAnalysis(file, query) {
+// Submit new analysis (supports both sync and async modes)
+export async function submitAnalysis(file, query, mode = 'async') {
   const form = new FormData();
   form.append('file', file);
   form.append('query', query || 'Analyze this financial document for investment insights');
   
-  const res = await fetch(`${BASE_URL}/analyze/async`, { 
+  const endpoint = mode === 'sync' ? '/analyze' : '/analyze/async';
+  const res = await fetch(`${BASE_URL}${endpoint}`, { 
     method: 'POST', 
     body: form 
   });
@@ -16,7 +17,7 @@ export async function submitAnalysis(file, query) {
     throw new Error(errorData.detail || 'Failed to submit analysis');
   }
   
-  return res.json(); // { job_id, task_id, status, query, file_processed }
+  return res.json(); // Async: { job_id, ... }, Sync: { status, analysis, ... }
 }
 
 // Get single job status

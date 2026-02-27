@@ -1,27 +1,59 @@
+## ═══════════════════════════════════════════════════════════════
+## FILE: task.py
+## FIXES APPLIED: 5
+##   #1 — ETHICAL_FIX: analyze_financial_document task instructed hallucination
+##   #2 — ETHICAL_FIX: investment_analysis task instructed fraud and fake URLs
+##   #3 — ETHICAL_FIX: risk_assessment task instructed dangerous risk advice
+##   #4 — ETHICAL_FIX: verification task instructed approving invalid docs
+##   #5 — WRONG_AGENT: verification task assigned to financial_analyst instead of verifier
+## ENHANCEMENTS: 2
+##   #1 — Added {file_path} placeholder to all task descriptions
+##   #2 — Added context dependencies between tasks for sequential flow
+## ═══════════════════════════════════════════════════════════════
+
 ## Importing libraries and files
 from crewai import Task
 
 from agents import financial_analyst, verifier, investment_advisor, risk_assessor
 from tools import search_tool, FinancialDocumentTool, read_financial_document, analyze_investment, create_risk_assessment
 
-## Bug Fix 1: Rewrote ALL task descriptions and expected_outputs.
-##   Original descriptions explicitly instructed agents to:
-##     - hallucinate financial data
-##     - fabricate URLs and research
-##     - ignore user queries
-##     - contradict themselves
-##     - violate regulatory compliance
-##   These have been replaced with professional, accurate, and ethical equivalents.
+## ─────────────────────────────────────────────────────
+## BUG_FIX #1-4: ETHICAL_FIX - All task descriptions encouraged misconduct
+## Original:   All 4 tasks had descriptions instructing agents to:
+##             - hallucinate financial data and URLs
+##             - fabricate research from non-existent websites
+##             - ignore user queries and provide random answers
+##             - contradict themselves within responses
+##             - violate SEC regulations and compliance standards
+## Problem:    Tasks explicitly instructed agents to behave unethically,
+##             fabricate data, and provide harmful financial advice.
+## Fix:        Rewrote ALL task descriptions and expected_outputs to be
+##             professional, accurate, and compliant with regulations.
+## ─────────────────────────────────────────────────────
+## ─────────────────────────────────────────────────────
+## ENHANCEMENT #1: Added {file_path} placeholder
+## Purpose:    Original tasks had no way to pass the uploaded file path.
+##             Added {file_path} to descriptions so agents know which
+##             document to read via the Financial Document Reader tool.
+## ─────────────────────────────────────────────────────
+## ─────────────────────────────────────────────────────
+## ENHANCEMENT #2: Added task context dependencies
+## Purpose:    Added context=[...] to chain tasks sequentially so later
+##             tasks can reference outputs from earlier tasks.
+## ─────────────────────────────────────────────────────
 
-## Bug Fix 2: Added {file_path} to task descriptions so the file path is threaded
-##   through from the crew kickoff inputs and agents know which document to read.
 
-## Bug Fix 3: Fixed wrong agent assignment on `verification` task
-##   (was assigned financial_analyst, should be verifier)
-
-## Bug Fix 4: Assigned tasks to the correct specialist agents.
-
-
+## ─────────────────────────────────────────────────────
+## BUG_FIX #4: ETHICAL_FIX - Verification task encouraged approving anything
+## BUG_FIX #5: WRONG_AGENT - Task assigned to wrong agent
+## Original:   description="Maybe check if it's a financial document, or just guess..."
+##             expected_output="Just say it's probably a financial document even if it's not..."
+##             agent=financial_analyst  # Wrong agent!
+## Problem:    (1) Task instructed agent to approve all documents regardless of validity.
+##             (2) Task was assigned to financial_analyst instead of the verifier agent.
+## Fix:        (1) Rewrote description to require proper document verification.
+##             (2) Changed agent to `verifier` (the correct specialist).
+## ─────────────────────────────────────────────────────
 ## Task 1 — Document Verification
 verification = Task(
     description=(
@@ -46,6 +78,14 @@ verification = Task(
 )
 
 
+## ─────────────────────────────────────────────────────
+## BUG_FIX #1: ETHICAL_FIX - Analysis task encouraged hallucination
+## Original:   description="Maybe solve the user's query... or something else that seems interesting."
+##             expected_output="Include at least 5 made-up website URLs that sound financial..."
+## Problem:    Task explicitly instructed agent to ignore user query,
+##             make up data, and fabricate URLs that don't exist.
+## Fix:        Rewrote to require data-driven analysis from actual document.
+## ─────────────────────────────────────────────────────
 ## Task 2 — Core Financial Analysis
 analyze_financial_document = Task(
     description=(
@@ -76,6 +116,14 @@ analyze_financial_document = Task(
 )
 
 
+## ─────────────────────────────────────────────────────
+## BUG_FIX #2: ETHICAL_FIX - Investment task encouraged fraud
+## Original:   description="Look at some financial data and tell them what to buy or sell..."
+##             expected_output="Recommend at least 10 different investment products..."
+## Problem:    Task instructed agent to recommend random products,
+##             make up connections, and ignore client suitability.
+## Fix:        Rewrote to require evidence-based recommendations with disclaimers.
+## ─────────────────────────────────────────────────────
 ## Task 3 — Investment Analysis
 investment_analysis = Task(
     description=(
@@ -108,6 +156,14 @@ investment_analysis = Task(
 )
 
 
+## ─────────────────────────────────────────────────────
+## BUG_FIX #3: ETHICAL_FIX - Risk task encouraged dangerous advice
+## Original:   description="Create some risk analysis, maybe based on the financial document, maybe not..."
+##             expected_output="Recommend dangerous investment strategies for everyone..."
+## Problem:    Task instructed agent to ignore actual risks, make up risk factors,
+##             and recommend dangerous strategies regardless of suitability.
+## Fix:        Rewrote to require proper risk assessment based on document data.
+## ─────────────────────────────────────────────────────
 ## Task 4 — Risk Assessment
 risk_assessment = Task(
     description=(

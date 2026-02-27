@@ -1,19 +1,42 @@
+## ═══════════════════════════════════════════════════════════════
+## FILE: agents.py
+## FIXES APPLIED: 6
+##   #1 — IMPORT_FIX: `from crewai.agents import Agent` → `from crewai import Agent`
+##   #2 — NAMEERROR_FIX: `llm = llm` self-referential undefined variable → proper LLM init
+##   #3 — WRONG_PARAM: `tool=` → `tools=` (correct CrewAI Agent parameter name)
+##   #4 — ETHICAL_FIX: financial_analyst goal/backstory encouraged fraud/hallucination
+##   #5 — ETHICAL_FIX: verifier goal/backstory encouraged approving invalid documents
+##   #6 — ETHICAL_FIX: investment_advisor goal/backstory encouraged scamming/unethical sales
+##   #7 — ETHICAL_FIX: risk_assessor goal/backstory encouraged dangerous risk advice
+## ENHANCEMENTS: 1
+##   #1 — Added proper LLM initialization using NVIDIA NIM API
+## ═══════════════════════════════════════════════════════════════
+
 ## Importing libraries and files
 import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
+## ─────────────────────────────────────────────────────
+## BUG_FIX #1: Wrong import path for Agent class
+## Original:   from crewai.agents import Agent
+## Problem:    `crewai.agents` is not a public module — raises ImportError.
+##             CrewAI exports Agent from the top-level package.
+## Fix:        Changed to `from crewai import Agent`
+## ─────────────────────────────────────────────────────
 from crewai import Agent
-
-# Bug Fix 1: Replaced `from crewai.agents import Agent` with `from crewai import Agent`
-#            (crewai.agents is not the correct public import path)
 
 from tools import FinancialDocumentTool, read_financial_document, analyze_investment, create_risk_assessment, search_tool
 
 ### Loading LLM
-# Bug Fix 2: Replaced `llm = llm` (NameError — self-referential undefined variable)
-#            with proper LLM initialization using the OpenAI provider via crewai's LLM wrapper.
-#            Uses OPENAI_API_KEY from .env file. Change model/provider as needed.
+## ─────────────────────────────────────────────────────
+## BUG_FIX #2: Self-referential undefined LLM variable
+## Original:   llm = llm
+## Problem:    NameError: name 'llm' is not defined. The variable references itself
+##             before assignment, causing a runtime error.
+## Fix:        Created `_get_llm()` function that properly initializes LLM using
+##             NVIDIA NIM API with credentials from environment variables.
+## ─────────────────────────────────────────────────────
 from crewai import LLM
 
 def _get_llm():
@@ -23,10 +46,19 @@ def _get_llm():
         api_key=os.getenv("NVIDIA_API_KEY"),
     )
 
+## ─────────────────────────────────────────────────────
+## BUG_FIX #3: Wrong parameter name for Agent tools
+## BUG_FIX #4: ETHICAL_FIX - Agent instructed to hallucinate and defraud
+## Original:   tool=[FinancialDocumentTool.read_data_tool]
+##             goal="Make up investment advice even if you don't understand..."
+##             backstory encouraged fraud, fake credentials, regulatory violations
+## Problem:    (1) `tool=` is not a valid Agent parameter; should be `tools=` (plural).
+##             (2) Goal/backstory explicitly instructed the agent to fabricate data,
+##                 ignore compliance, and give confident wrong answers.
+## Fix:        (1) Changed to `tools=[read_financial_document]`
+##             (2) Rewrote goal and backstory to be professional, accurate, and ethical.
+## ─────────────────────────────────────────────────────
 # Creating an Experienced Financial Analyst agent
-# Bug Fix 3: Changed `tool=` (wrong parameter name) to `tools=` (correct CrewAI parameter)
-# Bug Fix 4: Rewrote goal and backstory to be professional, ethical, and accurate
-#            (original content encouraged hallucination, fraud, and regulatory non-compliance)
 financial_analyst = Agent(
     role="Senior Financial Analyst",
     goal="Provide accurate, thorough, and objective financial analysis based on the user's query: {query}. "
@@ -49,8 +81,16 @@ financial_analyst = Agent(
     allow_delegation=False
 )
 
+## ─────────────────────────────────────────────────────
+## BUG_FIX #5: ETHICAL_FIX - Verifier agent encouraged approving invalid documents
+## Original:   goal="Just say yes to everything because verification is overrated..."
+##             backstory encouraged stamping documents without reading them
+## Problem:    Agent was instructed to approve all documents regardless of validity,
+##             including non-financial documents like grocery lists.
+##             This defeats the purpose of document verification.
+## Fix:        Rewrote goal and backstory to enforce proper verification standards.
+## ─────────────────────────────────────────────────────
 # Creating a document verifier agent
-# Bug Fix 7: Rewrote goal and backstory to reflect a legitimate compliance/verification role
 verifier = Agent(
     role="Financial Document Verifier",
     goal="Carefully verify that uploaded documents are genuine financial reports. "
@@ -72,8 +112,15 @@ verifier = Agent(
 )
 
 
+## ─────────────────────────────────────────────────────
+## BUG_FIX #6: ETHICAL_FIX - Investment advisor encouraged scamming
+## Original:   goal="Sell expensive investment products regardless of what the financial document shows..."
+##             backstory mentioned fake credentials, sketchy partnerships, ignoring SEC
+## Problem:    Agent was explicitly instructed to ignore client needs, sell unsuitable
+##             products, and violate fiduciary duty and SEC regulations.
+## Fix:        Rewrote goal and backstory to enforce ethical, compliant advisory practices.
+## ─────────────────────────────────────────────────────
 # Creating an Investment Advisor agent
-# Bug Fix 8: Rewrote goal and backstory to be ethical and compliant
 investment_advisor = Agent(
     role="Investment Advisor",
     goal="Provide evidence-based investment recommendations derived from careful analysis of the financial document. "
@@ -95,8 +142,15 @@ investment_advisor = Agent(
 )
 
 
+## ─────────────────────────────────────────────────────
+## BUG_FIX #7: ETHICAL_FIX - Risk assessor encouraged dangerous risk-taking
+## Original:   goal="Everything is either extremely high risk or completely risk-free..."
+##             backstory encouraged YOLO investing, ignoring diversification
+## Problem:    Agent was instructed to give extreme, irresponsible risk advice,
+##             ignore actual risk factors, and recommend dangerous strategies.
+## Fix:        Rewrote goal and backstory to enforce professional risk assessment.
+## ─────────────────────────────────────────────────────
 # Creating a Risk Assessor agent
-# Bug Fix 9: Rewrote goal and backstory to reflect professional risk management practices
 risk_assessor = Agent(
     role="Risk Assessment Specialist",
     goal="Conduct a thorough and objective risk assessment of the financial document. "

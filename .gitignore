@@ -25,6 +25,11 @@ dist/
 !.env.example
 *.sqlite3
 
+# Uploaded files and test data
+data/
+*.pdf
+outputs/
+
 # IDE / editor
 .vscode/
 .idea/

@@ -17,6 +17,59 @@ from database import get_db_session, AnalysisJob, JobStatus, init_db
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+def generate_final_answer(verification: str, financial_analysis: str, investment_analysis: str, risk_assessment: str) -> str:
+    """Use AI to synthesize all 4 agent outputs into a comprehensive final answer."""
+    from litellm import completion
+    
+    prompt = f"""You are a financial analyst. Synthesize the following 4 analysis sections into ONE comprehensive final answer.
+
+## Document Verification:
+{verification or 'Not available'}
+
+## Financial Analysis:
+{financial_analysis or 'Not available'}
+
+## Investment Analysis:
+{investment_analysis or 'Not available'}
+
+## Risk Assessment:
+{risk_assessment or 'Not available'}
+
+Generate a well-structured final answer that:
+1. Opens with an executive summary
+2. Highlights key financial metrics and trends
+3. Provides investment recommendation (BUY/HOLD/SELL)
+4. Summarizes main risks
+5. Ends with actionable insights
+
+Keep it concise but comprehensive. Use markdown formatting."""
+
+    try:
+        response = completion(
+            model="nvidia_nim/meta/llama-3.3-70b-instruct",
+            messages=[{"role": "user", "content": prompt}],
+            api_key=settings.nvidia_api_key,
+            base_url="https://integrate.api.nvidia.com/v1",
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        logger.error(f"Error generating final answer: {e}")
+        # Fallback: combine all outputs
+        return f"""## Final Analysis Report
+
+### Document Verification
+{verification or 'Not available'}
+
+### Financial Analysis
+{financial_analysis or 'Not available'}
+
+### Investment Analysis
+{investment_analysis or 'Not available'}
+
+### Risk Assessment
+{risk_assessment or 'Not available'}"""
+
 # ---------------------------------------------------------------------------
 # Celery Configuration
 # ---------------------------------------------------------------------------
@@ -121,33 +174,44 @@ def analyze_document_task(self, job_id: str, query: str, file_path: str, origina
         result = financial_crew.kickoff({"query": query, "file_path": file_path})
         result_str = str(result)
         
-        # Extract individual task outputs
+        # Extract individual task outputs from result.tasks_output
+        # Each TaskOutput has .raw attribute containing the agent's output text
         task_outputs = {}
         try:
-            # CrewAI stores task outputs in tasks_output attribute
-            if hasattr(result, 'tasks_output'):
-                for i, task_output in enumerate(result.tasks_output):
-                    task_name = ['verification', 'analysis', 'investment', 'risk'][i] if i < 4 else f'task_{i}'
-                    task_outputs[task_name] = str(task_output)
-            # Alternative: access via crew.tasks
-            elif hasattr(financial_crew, 'tasks'):
-                tasks = [verification, analyze_task, investment_analysis, risk_assessment]
+            if hasattr(result, 'tasks_output') and result.tasks_output:
                 task_names = ['verification', 'analysis', 'investment', 'risk']
-                for task, name in zip(tasks, task_names):
-                    if hasattr(task, 'output') and task.output:
-                        task_outputs[name] = str(task.output)
+                for i, task_output in enumerate(result.tasks_output):
+                    if i < len(task_names):
+                        # The .raw attribute contains the actual output text
+                        raw_output = getattr(task_output, 'raw', None)
+                        if raw_output:
+                            task_outputs[task_names[i]] = str(raw_output)
+                            logger.info(f"Extracted {task_names[i]}: {len(raw_output)} chars")
+                        else:
+                            logger.warning(f"No raw output for task {i}")
+            else:
+                logger.warning("No tasks_output in result")
         except Exception as e:
-            logger.warning(f"Could not extract individual task outputs: {e}")
+            logger.error(f"Error extracting outputs: {e}", exc_info=True)
         
         duration = int(time.time() - start_time)
         logger.info(f"Analysis completed for job {job_id} in {duration}s")
+        
+        # Generate AI-synthesized final answer
+        final_answer = generate_final_answer(
+            verification=task_outputs.get('verification'),
+            financial_analysis=task_outputs.get('analysis'),
+            investment_analysis=task_outputs.get('investment'),
+            risk_assessment=task_outputs.get('risk'),
+        )
+        logger.info(f"Generated final answer: {len(final_answer)} chars")
         
         # Update job status to completed
         with get_db_session() as db:
             job = db.query(AnalysisJob).filter(AnalysisJob.job_id == job_id).first()
             if job:
                 job.status = JobStatus.COMPLETED
-                job.result = result_str
+                job.result = final_answer
                 job.duration_seconds = duration
                 job.completed_at = time.strftime("%Y-%m-%d %H:%M:%S")
                 db.add(job)
@@ -162,7 +226,7 @@ def analyze_document_task(self, job_id: str, query: str, file_path: str, origina
                     financial_analysis=task_outputs.get('analysis'),
                     investment_analysis=task_outputs.get('investment'),
                     risk_assessment=task_outputs.get('risk'),
-                    analysis=result_str,
+                    analysis=final_answer,
                     duration_seconds=duration,
                 )
                 db.add(db_result)

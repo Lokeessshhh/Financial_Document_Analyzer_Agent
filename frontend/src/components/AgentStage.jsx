@@ -7,7 +7,7 @@ const AgentStage = ({ stage, status, output }) => {
   const Icon = stage.icon;
 
   const toggleExpand = () => {
-    if (status !== 'waiting') {
+    if (status !== 'waiting' || output) {
       setIsExpanded(!isExpanded);
     }
   };

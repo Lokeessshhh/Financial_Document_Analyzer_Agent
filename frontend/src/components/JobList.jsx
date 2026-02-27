@@ -7,7 +7,7 @@ const JobList = ({ jobs, loading, selectedJobId, onJobSelect, onRefresh }) => {
   return (
     <aside className="job-list">
       <div className="job-list-header">
-        <label className="section-label">RECENT ANALYSES</label>
+        <label className="section-label">ANALYSES</label>
         <button className="refresh-btn" onClick={onRefresh} title="Refresh list">
           <Search size={14} />
         </button>
