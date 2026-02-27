@@ -73,7 +73,7 @@ log = structlog.get_logger()
 # ---------------------------------------------------------------------------
 # Rate limiting
 # ---------------------------------------------------------------------------
-limiter = Limiter(key_func=get_remote_address, default_limits=["5/minute"])
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 
 # ---------------------------------------------------------------------------
 # API Key auth
@@ -100,12 +100,24 @@ async def lifespan(app: FastAPI):
 # ---------------------------------------------------------------------------
 # FastAPI app
 # ---------------------------------------------------------------------------
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="Financial Document Analyzer",
     description="AI-powered financial document analysis using CrewAI agents. Supports both synchronous and asynchronous (queue-based) processing.",
     version="2.0.0",
     lifespan=lifespan,
 )
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
