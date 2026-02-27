@@ -6,12 +6,12 @@ crewai==0.130.0
 # FIX: must match crewai==0.130.0 exactly — newer crewai-tools imports crewai.rag which doesn't exist in 0.130.0
 crewai-tools==0.47.1
 # FIX: Pin embedchain (crewai-tools dep) to stop pip resolver backtracking indefinitely
-embedchain==0.1.128
+embedchain==0.1.57
 # FIX: Pin these embedchain transitive deps to further constrain the resolver
-langchain==0.3.27
-langchain-openai==0.2.14
-langchain-cohere==0.3.2
-langchain-experimental==0.3.4
+langchain==0.2.17
+langchain-openai==0.1.25
+langchain-cohere==0.1.4
+langchain-experimental==0.0.65
 
 # Bug Fix: Added missing dependencies
 # python-dotenv — required for load_dotenv() used in agents.py and tools.py
@@ -21,7 +21,7 @@ python-dotenv>=1.0.0
 python-multipart>=0.0.9
 
 # langchain-community — required for PyPDFLoader used in tools.py to replace undefined `Pdf` class
-langchain-community>=0.2.0
+langchain-community==0.2.19
 
 # pypdf — required by PyPDFLoader to parse PDF files
 pypdf>=4.0.0
@@ -96,8 +96,8 @@ googleapis-common-protos
 click
 Jinja2
 jsonschema
-langchain-core
-langsmith
+langchain-core==0.2.43
+langsmith==0.1.147
 numpy
 oauthlib
 PyYAML>=6.0.0             # YAML config file support
