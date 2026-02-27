@@ -645,7 +645,7 @@ source .venv/bin/activate      # macOS/Linux
 ### 3. Install dependencies
 
 ```bash
-pip install -r requirements.txt
+> pip install -r requirements.txt --use-deprecated=legacy-resolver --no-cache-dir
 ```
 
 ### 4. Configure environment variables
