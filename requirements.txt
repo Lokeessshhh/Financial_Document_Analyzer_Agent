@@ -5,6 +5,13 @@
 crewai==0.130.0
 # FIX: must match crewai==0.130.0 exactly — newer crewai-tools imports crewai.rag which doesn't exist in 0.130.0
 crewai-tools==0.47.1
+# FIX: Pin embedchain (crewai-tools dep) to stop pip resolver backtracking indefinitely
+embedchain==0.1.128
+# FIX: Pin these embedchain transitive deps to further constrain the resolver
+langchain==0.3.27
+langchain-openai==0.2.14
+langchain-cohere==0.3.2
+langchain-experimental==0.3.4
 
 # Bug Fix: Added missing dependencies
 # python-dotenv — required for load_dotenv() used in agents.py and tools.py
@@ -122,5 +129,5 @@ pillow==10.3.0
 protobuf>=4.25.3
 
 # FIX: pydantic_core must match pydantic — 2.6.1 requires pydantic_core~=2.16.x, not 2.8.0
-pydantic>=2.6.1
-pydantic_core>=2.16.2
+pydantic==2.12.5
+pydantic_core==2.41.5
