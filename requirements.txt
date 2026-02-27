@@ -23,6 +23,48 @@ pypdf>=4.0.0
 fastapi>=0.115.9
 uvicorn[standard]>=0.29.0
 
+# Performance & security additions
+slowapi>=0.1.9            # rate limiting for FastAPI
+structlog>=24.1.0         # structured logging
+pydantic-settings>=2.2.0  # Pydantic Settings for config management
+sentry-sdk>=2.0.0         # optional error tracking (only used when SENTRY_DSN is set)
+
+# Queue processing (Celery + Redis)
+celery>=5.3.0
+redis>=5.0.0
+
+# Database (SQLAlchemy + PostgreSQL)
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+alembic>=1.13.0           # database migrations for SQLAlchemy
+
+# Caching
+cachetools>=5.3.0         # in-memory caching utilities
+
+# HTTP client
+httpx>=0.27.0             # async HTTP client (used by openai, litellm, fastapi testclient)
+aiohttp>=3.9.0            # async HTTP, used by litellm and crewai internals
+
+# File handling & document parsing
+python-docx>=1.1.0        # Word document parsing
+openpyxl>=3.1.0           # Excel file parsing
+pdfminer.six>=20221105    # low-level PDF text extraction (complements pypdf)
+chardet>=5.2.0            # character encoding detection for text files
+
+# Data & ML utilities
+scikit-learn>=1.4.0       # optional: used for embeddings/clustering in RAG pipelines
+scipy>=1.13.0             # scientific computing, dependency of scikit-learn
+tiktoken>=0.7.0           # token counting for OpenAI models
+
+# Security
+cryptography>=42.0.0      # required by google-auth and various TLS libraries
+PyJWT>=2.8.0              # JWT token handling for auth endpoints
+passlib[bcrypt]>=1.7.4    # password hashing
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0    # async test support for FastAPI endpoints
+
 # LLM providers
 openai>=1.68.2
 
@@ -51,8 +93,15 @@ langchain-core
 langsmith
 numpy
 oauthlib
+PyYAML>=6.0.0             # YAML config file support
+tenacity>=8.2.0           # retry logic (used by langchain and crewai internally)
+tqdm>=4.66.0              # progress bars
+rich>=13.0.0              # rich terminal output (used by crewai UI)
+typing-extensions>=4.10.0 # backports of newer typing features
+
 # FIX: onnxruntime 1.22.0 does not exist; latest stable is 1.18.x
 onnxruntime>=1.17.0
+
 # Opentelemetry versions unpinned to let crewai 0.130.0 resolve compatible versions
 opentelemetry-api
 opentelemetry-exporter-otlp-proto-common
@@ -65,10 +114,13 @@ opentelemetry-proto
 opentelemetry-sdk
 opentelemetry-semantic-conventions
 opentelemetry-util-http
+
 pandas==2.2.2
 pillow==10.3.0
+
 # FIX: unpinned protobuf to allow compatibility with recent google-* packages (may require >=5.x)
 protobuf>=4.25.3
+
 # FIX: pydantic_core must match pydantic — 2.6.1 requires pydantic_core~=2.16.x, not 2.8.0
 pydantic>=2.6.1
 pydantic_core>=2.16.2
