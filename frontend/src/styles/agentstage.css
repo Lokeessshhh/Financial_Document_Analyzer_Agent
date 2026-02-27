@@ -1,0 +1,166 @@
+.agent-stage {
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface);
+  transition: var(--transition);
+}
+
+.agent-stage:last-child {
+  border-bottom: none;
+}
+
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.stage-header:hover {
+  background-color: var(--bg-elevated);
+}
+
+.stage-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stage-number {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+}
+
+.stage-icon-wrapper {
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+}
+
+.agent-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.stage-status {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-text {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.chevron {
+  color: var(--text-tertiary);
+  transition: transform var(--transition);
+}
+
+.agent-stage.expanded .chevron {
+  transform: rotate(180deg);
+}
+
+.stage-content-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 400ms ease;
+}
+
+.agent-stage.expanded .stage-content-wrapper {
+  max-height: 800px;
+}
+
+.stage-content {
+  padding: 0 24px 24px 64px;
+  position: relative;
+}
+
+.output-container {
+  position: relative;
+  background-color: var(--bg-base);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.output-text {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.copy-stage-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: var(--text-tertiary);
+  transition: var(--transition);
+}
+
+.copy-stage-btn:hover {
+  color: var(--accent-gold);
+}
+
+.awaiting-text {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+/* State Modifiers */
+.agent-stage.active {
+  border-left: 3px solid var(--accent-gold);
+  background-color: var(--status-processing-glow);
+}
+
+.agent-stage.active .status-dot {
+  background-color: var(--status-processing);
+  animation: pulse 1.5s infinite;
+}
+
+.agent-stage.active .status-text {
+  color: var(--status-processing);
+}
+
+.agent-stage.completed {
+  border-left: 3px solid var(--status-completed);
+}
+
+.agent-stage.completed .status-dot {
+  background-color: var(--status-completed);
+}
+
+.agent-stage.completed .status-text {
+  color: var(--status-completed);
+}
+
+.agent-stage.failed {
+  border-left: 3px solid var(--status-failed);
+}
+
+.agent-stage.failed .status-dot {
+  background-color: var(--status-failed);
+}
+
+.agent-stage.failed .status-text {
+  color: var(--status-failed);
+}
+
+.agent-stage.waiting {
+  opacity: 0.6;
+}

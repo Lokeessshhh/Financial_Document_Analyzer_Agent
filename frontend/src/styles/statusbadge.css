@@ -1,0 +1,35 @@
+.status-badge {
+  display: inline-flex;
+  padding: 2px 10px;
+  border-radius: 100px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.badge-text {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+}
+
+.status-badge.pending .badge-text { color: var(--text-tertiary); }
+
+.status-badge.processing {
+  background-color: var(--status-processing-glow);
+  border-color: var(--accent-gold-dim);
+}
+.status-badge.processing .badge-text { color: var(--accent-gold); }
+
+.status-badge.completed {
+  background-color: var(--status-completed-glow);
+  border-color: var(--status-completed);
+}
+.status-badge.completed .badge-text { color: var(--status-completed); }
+
+.status-badge.failed {
+  background-color: rgba(201, 110, 110, 0.1);
+  border-color: var(--status-failed);
+}
+.status-badge.failed .badge-text { color: var(--status-failed); }
