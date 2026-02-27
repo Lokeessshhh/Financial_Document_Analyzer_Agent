@@ -50,6 +50,14 @@ celery_app.conf.update(
     broker_connection_retry_on_startup=True,
     broker_connection_max_retries=5,
     
+    # SSL settings for Upstash Redis (rediss://)
+    broker_use_ssl={
+        "ssl_cert_reqs": None,  # CERT_NONE - don't verify cert
+    },
+    redis_backend_use_ssl={
+        "ssl_cert_reqs": None,  # CERT_NONE - don't verify cert
+    },
+    
     # Task routing
     task_routes={
         "worker.analyze_document_task": {"queue": "analysis"},
@@ -113,6 +121,24 @@ def analyze_document_task(self, job_id: str, query: str, file_path: str, origina
         result = financial_crew.kickoff({"query": query, "file_path": file_path})
         result_str = str(result)
         
+        # Extract individual task outputs
+        task_outputs = {}
+        try:
+            # CrewAI stores task outputs in tasks_output attribute
+            if hasattr(result, 'tasks_output'):
+                for i, task_output in enumerate(result.tasks_output):
+                    task_name = ['verification', 'analysis', 'investment', 'risk'][i] if i < 4 else f'task_{i}'
+                    task_outputs[task_name] = str(task_output)
+            # Alternative: access via crew.tasks
+            elif hasattr(financial_crew, 'tasks'):
+                tasks = [verification, analyze_task, investment_analysis, risk_assessment]
+                task_names = ['verification', 'analysis', 'investment', 'risk']
+                for task, name in zip(tasks, task_names):
+                    if hasattr(task, 'output') and task.output:
+                        task_outputs[name] = str(task.output)
+        except Exception as e:
+            logger.warning(f"Could not extract individual task outputs: {e}")
+        
         duration = int(time.time() - start_time)
         logger.info(f"Analysis completed for job {job_id} in {duration}s")
         
@@ -126,12 +152,16 @@ def analyze_document_task(self, job_id: str, query: str, file_path: str, origina
                 job.completed_at = time.strftime("%Y-%m-%d %H:%M:%S")
                 db.add(job)
                 
-                # Also store in results table
+                # Also store in results table with individual agent outputs
                 from database import AnalysisResult
                 db_result = AnalysisResult(
                     job_id=job_id,
                     query=query,
                     original_filename=original_filename,
+                    verification_report=task_outputs.get('verification'),
+                    financial_analysis=task_outputs.get('analysis'),
+                    investment_analysis=task_outputs.get('investment'),
+                    risk_assessment=task_outputs.get('risk'),
                     analysis=result_str,
                     duration_seconds=duration,
                 )
@@ -174,4 +204,5 @@ def analyze_document_task(self, job_id: str, query: str, file_path: str, origina
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     logger.info("Starting Celery worker...")
-    celery_app.worker_main(["worker", "--loglevel=info"])
+    # Use solo pool on Windows to avoid multiprocessing PermissionError
+    celery_app.worker_main(["worker", "--loglevel=info", "-P", "solo"])

@@ -245,7 +245,7 @@ async def analyze_document(
                 query=query,
                 original_filename=file.filename,
                 file_path=file_path,
-                status=JobStatus.COMPLETED.value,
+                status=JobStatus.COMPLETED,
                 result=response,
                 duration_seconds=int(duration),
             )
@@ -285,7 +285,7 @@ async def analyze_document(
                 job_id=job_id,
                 query=query,
                 original_filename=file.filename,
-                status=JobStatus.FAILED.value,
+                status=JobStatus.FAILED,
                 error_message=str(e),
             )
             db.add(db_job)
@@ -349,7 +349,7 @@ async def analyze_document_async(
             query=query,
             original_filename=file.filename,
             file_path=file_path,
-            status=JobStatus.PENDING.value,
+            status=JobStatus.PENDING,
         )
         db.add(db_job)
 
@@ -460,7 +460,13 @@ async def get_analysis_result(
             "job_id": result.job_id,
             "query": result.query,
             "original_filename": result.original_filename,
-            "analysis": result.analysis,
+            "agent_outputs": {
+                "verification": result.verification_report,
+                "financial_analysis": result.financial_analysis,
+                "investment_analysis": result.investment_analysis,
+                "risk_assessment": result.risk_assessment,
+            },
+            "final_analysis": result.analysis,
             "summary": result.summary,
             "duration_seconds": result.duration_seconds,
             "created_at": result.created_at.isoformat() if result.created_at else None,

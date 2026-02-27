@@ -86,6 +86,14 @@ class AnalysisResult(Base):
     job_id = Column(String(36), unique=True, nullable=False, index=True)
     query = Column(Text, nullable=False)
     original_filename = Column(String(255), nullable=False)
+    
+    # Individual agent outputs
+    verification_report = Column(Text, nullable=True)      # Agent 1: Verifier
+    financial_analysis = Column(Text, nullable=True)       # Agent 2: Financial Analyst
+    investment_analysis = Column(Text, nullable=True)       # Agent 3: Investment Advisor
+    risk_assessment = Column(Text, nullable=True)           # Agent 4: Risk Assessor
+    
+    # Final combined result
     analysis = Column(Text, nullable=False)
     summary = Column(Text, nullable=True)
     duration_seconds = Column(Integer, nullable=True)

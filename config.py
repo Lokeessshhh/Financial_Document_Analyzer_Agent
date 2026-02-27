@@ -38,13 +38,18 @@ class Settings(BaseSettings):
     
     @property
     def celery_broker_url(self) -> str:
-        """Get Celery broker URL (Upstash Redis)."""
-        return self.upstash_redis_url
+        """Get Celery broker URL (Upstash Redis) with SSL options."""
+        url = self.upstash_redis_url
+        if url and url.startswith("rediss://"):
+            # Append SSL cert requirements for Celery
+            separator = "?" if "?" not in url else "&"
+            url = f"{url}{separator}ssl_cert_reqs=none"
+        return url
     
     @property
     def celery_result_backend(self) -> str:
         """Get Celery result backend (same as broker for Upstash)."""
-        return self.upstash_redis_url
+        return self.celery_broker_url
 
 
 settings = Settings()
